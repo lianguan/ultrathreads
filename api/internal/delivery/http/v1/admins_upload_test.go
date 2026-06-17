@@ -93,7 +93,7 @@ func TestHandler_adminUploadImage(t *testing.T) {
 
 				r.EXPECT().UploadAndSaveFile(context.Background(), domain.File{
 					Type:        domain.Image,
-					Name:        fmt.Sprintf("%s-image.png", school.ID.Hex()),
+					Name:        fmt.Sprintf("%d-image.png", school.ID),
 					ContentType: contentType,
 					Size:        fileSize,
 					SchoolID:    school.ID,
@@ -172,7 +172,7 @@ func TestHandler_adminUploadImage(t *testing.T) {
 
 			// Remove files
 			filenameParts := strings.Split(tt.filePath, "/")
-			filename := fmt.Sprintf("%s-%s", school.ID.Hex(), filenameParts[len(filenameParts)-1])
+			filename := fmt.Sprintf("%d-%s", school.ID, filenameParts[len(filenameParts)-1])
 			os.Remove(filename)
 		})
 	}
