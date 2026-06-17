@@ -516,7 +516,7 @@ func TestHandler_studentSignUp(t *testing.T) {
 
 			// Init Endpoint
 			r := gin.New()
-			r.GET("/sign-up", func(c *gin.Context) {
+			r.POST("/sign-up", func(c *gin.Context) {
 				c.Set(schoolCtx, domain.School{
 					ID: tt.schoolId,
 					Settings: domain.Settings{
@@ -528,7 +528,8 @@ func TestHandler_studentSignUp(t *testing.T) {
 
 			// Create Request
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/sign-up", bytes.NewBufferString(tt.requestBody))
+			req := httptest.NewRequest("POST", "/sign-up", bytes.NewBufferString(tt.requestBody))
+			req.Header.Set("Content-Type", "application/json")
 
 			// Make Request
 			r.ServeHTTP(w, req)
