@@ -1,0 +1,49 @@
+version: '3.4'
+
+services:
+  app:
+    image: ultrathreads-backend-app
+    container_name: ultrathreads-backend-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - mysql
+    volumes:
+      - ./.bin/:/root/
+      - ./configs/:/root/configs/
+      - ./templates/:/root/templates/
+    env_file:
+      - .env
+
+  debug:
+    image: ultrathreads-backend-debug
+    container_name: ultrathreads-backend-debug
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    ports:
+      - "8000:8000"
+      - "2345:2345"
+    depends_on:
+      - mysql
+    volumes:
+      - ./.bin/:/root/
+      - ./configs/:/root/configs/
+      - ./templates/:/root/templates/
+    env_file:
+      - .env
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root1234
+      - MYSQL_DATABASE=course
+    volumes:
+      - ./.data/mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
