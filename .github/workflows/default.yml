@@ -37,10 +37,20 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: "1.18"
 
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
+
+      - name: Generate mocks
+        run: |
+          cd api
+          export PATH=$PATH:$(go env GOPATH)/bin
+          mockgen -source=internal/service/service.go -destination=internal/service/mocks/mock.go
+          mockgen -source=internal/repository/repository.go -destination=internal/repository/mocks/mock.go
 
       - name: Unit Tests
         run: cd api && go test --short -coverprofile=cover.out -v ./...

@@ -30,7 +30,9 @@ export default function AdminSurveyPage() {
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState<SurveyResult | null>(null);
   const [newQuestionText, setNewQuestionText] = useState("");
-  const [newQuestionRequired, setNewQuestionRequired] = useState(true);
+  const [newQuestionAnswerType, setNewQuestionAnswerType] = useState("text");
+  const [newQuestionOptions, setNewQuestionOptions] = useState("");
+  const [surveyTitle, setSurveyTitle] = useState("");
 
   useEffect(() => {
     if (!isLoading && !token) router.push("/admin/login");
@@ -38,7 +40,10 @@ export default function AdminSurveyPage() {
 
   useEffect(() => {
     if (token && moduleId) {
-      api.get<Survey>(`/admins/modules/${moduleId}/survey`).then(setSurvey).catch(() => setSurvey(null));
+      api.get<Survey>(`/admins/modules/${moduleId}/survey`).then((res) => {
+        setSurvey(res);
+        if (res && res.title) setSurveyTitle(res.title);
+      }).catch(() => setSurvey(null));
       api.get<{ data: SurveyResult[] }>(`/admins/modules/${moduleId}/survey/results`).then((res) => {
         setResults(res.data || []);
       }).catch(() => setResults([]));
@@ -47,9 +52,19 @@ export default function AdminSurveyPage() {
 
   const handleCreateOrUpdate = async () => {
     const questions = survey?.questions || [];
-    const newQuestions = [...questions, { text: newQuestionText, required: newQuestionRequired }];
-    await api.post(`/admins/modules/${moduleId}/survey`, { questions: newQuestions });
+    const answerOptions = newQuestionOptions ? newQuestionOptions.split(",").map(s => s.trim()) : [];
+    const newQuestions = [...questions, { 
+      question: newQuestionText, 
+      answerType: newQuestionAnswerType,
+      answerOptions 
+    }];
+    await api.post(`/admins/modules/${moduleId}/survey`, { 
+      title: surveyTitle || "问卷",
+      required: true,
+      questions: newQuestions 
+    });
     setNewQuestionText("");
+    setNewQuestionOptions("");
     setDialogOpen(false);
     const updated = await api.get<Survey>(`/admins/modules/${moduleId}/survey`);
     setSurvey(updated);
@@ -142,13 +157,31 @@ export default function AdminSurveyPage() {
             <DialogHeader><DialogTitle>添加问题</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
+                <Label>问卷标题</Label>
+                <Input value={surveyTitle} onChange={(e) => setSurveyTitle(e.target.value)} placeholder="输入问卷标题" />
+              </div>
+              <div className="space-y-2">
                 <Label>问题内容</Label>
                 <Input value={newQuestionText} onChange={(e) => setNewQuestionText(e.target.value)} placeholder="输入问题" />
               </div>
-              <div className="flex items-center space-x-2">
-                <input type="checkbox" id="qRequired" checked={newQuestionRequired} onChange={(e) => setNewQuestionRequired(e.target.checked)} className="rounded" />
-                <Label htmlFor="qRequired">必填</Label>
+              <div className="space-y-2">
+                <Label>问题类型</Label>
+                <select 
+                  value={newQuestionAnswerType} 
+                  onChange={(e) => setNewQuestionAnswerType(e.target.value)} 
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="text">文本输入</option>
+                  <option value="select">单选</option>
+                  <option value="multiselect">多选</option>
+                </select>
               </div>
+              {(newQuestionAnswerType === "select" || newQuestionAnswerType === "multiselect") && (
+                <div className="space-y-2">
+                  <Label>选项（用逗号分隔）</Label>
+                  <Input value={newQuestionOptions} onChange={(e) => setNewQuestionOptions(e.target.value)} placeholder="选项1, 选项2, 选项3" />
+                </div>
+              )}
               <Button onClick={handleCreateOrUpdate} className="w-full">添加</Button>
             </div>
           </DialogContent>

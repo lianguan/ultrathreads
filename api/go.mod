@@ -1,6 +1,6 @@
 module ultrathreads
 
-go 1.17
+go 1.18
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -19,8 +19,8 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/xlzd/gotp v0.0.0-20181030022105-c8557ba2c119
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
-	gorm.io/driver/mysql v1.5.7
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/mysql v1.5.2
+	gorm.io/gorm v1.25.5
 )
 
 require (
