@@ -1,19 +1,20 @@
 package v1
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"ultrathreads/internal/domain"
+	"ultrathreads/internal/service"
+	mock_service "ultrathreads/internal/service/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/golang/mock/gomock"
-	"ultrathreads/internal/domain"
-	"ultrathreads/internal/service"
-	mock_service "ultrathreads/internal/service/mocks"
 )
 
 func TestHandler_studentCreateOrder(t *testing.T) {
@@ -113,7 +114,7 @@ func TestHandler_studentCreateOrder(t *testing.T) {
 			// Create Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/order",
-				bytes.NewBufferString(tt.body))
+				strings.NewReader(tt.body))
 
 			// Make Request
 			r.ServeHTTP(w, req)
@@ -528,7 +529,7 @@ func TestHandler_studentSignUp(t *testing.T) {
 
 			// Create Request
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/sign-up", bytes.NewBufferString(tt.requestBody))
+			req := httptest.NewRequest("POST", "/sign-up", strings.NewReader(tt.requestBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			// Make Request

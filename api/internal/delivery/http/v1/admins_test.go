@@ -1,20 +1,21 @@
 package v1
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
+
+	"ultrathreads/internal/domain"
+	"ultrathreads/internal/service"
+	mock_service "ultrathreads/internal/service/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/golang/mock/gomock"
-	"ultrathreads/internal/domain"
-	"ultrathreads/internal/service"
-	mock_service "ultrathreads/internal/service/mocks"
 )
 
 func TestHandler_adminUpdateSchoolSettings(t *testing.T) {
@@ -100,7 +101,7 @@ func TestHandler_adminUpdateSchoolSettings(t *testing.T) {
 			// Create Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("PUT", "/admins/school/settings",
-				bytes.NewBufferString(tt.body))
+				strings.NewReader(tt.body))
 
 			// Make Request
 			r.ServeHTTP(w, req)
@@ -199,7 +200,8 @@ func TestHandler_adminCreatePromocode(t *testing.T) {
 			// Create Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/admins/promocodes/",
-				bytes.NewBufferString(tt.body))
+				strings.NewReader(tt.body))
+			req.Header.Set("Content-Type", "application/json")
 
 			// Make Request
 			r.ServeHTTP(w, req)
@@ -485,7 +487,7 @@ func TestHandler_adminUpdatePromocode(t *testing.T) {
 			// Create Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("PUT", fmt.Sprintf("/admins/promocodes/%d", tt.input.ID),
-				bytes.NewBufferString(tt.body))
+				strings.NewReader(tt.body))
 
 			// Make Request
 			r.ServeHTTP(w, req)
